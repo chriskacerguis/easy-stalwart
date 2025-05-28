@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Directory of this script (assumes docker-compose.yml lives here)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+SERVICE_NAME="stalwart"
+IMAGE="stalwartlabs/stalwart:latest"
+
+echo "[$(date +'%F %T')] → Pulling latest image: $IMAGE"
+docker pull "$IMAGE"
+
+echo "[$(date +'%F %T')] → Updating service in docker-compose"
+docker-compose pull "$SERVICE_NAME"
+docker-compose up -d --no-deps "$SERVICE_NAME"
+
+echo "[$(date +'%F %T')] → Cleaning up unused images"
+docker image prune -f
+
+echo "[$(date +'%F %T')] → $SERVICE_NAME is now running on the latest image."
