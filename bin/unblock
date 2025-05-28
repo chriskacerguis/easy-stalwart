@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Define server URL
+SERVER_URL="http://localhost:8080"
+CRED="username:password"
+
+echo "Fetching blocked IPs..."
+blocked_ips=$(./stalwart-cli -u $SERVER_URL -c $CRED server list-config server.b
+locked-ip | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}')
+
+# Debugging: Show extracted IPs
+echo "Extracted IPs:"
+echo "$blocked_ips"
+
+# Check if any IPs were found
+if [[ -z "$blocked_ips" ]]; then
+    echo "No blocked IPs found."
+    exit 0
+fi
+
+# Parallel execution using xargs - change '4' to the number of parallel runs you
+ want - I used 25 no problem
+echo "$blocked_ips" | xargs -I {} -P 4 ./stalwart-cli -u $SERVER_URL -c $CRED se
+rver delete-config server.blocked-ip.{}
+
+echo "All IPs have been unblocked."
