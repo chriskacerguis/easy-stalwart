@@ -32,3 +32,14 @@ echo "$blocked_ips" \
       $DOCKER_CMD server delete-config server.blocked-ip.{}
 
 echo "All IPs have been unblocked."
+
+# Restart the container
+echo "Restarting container '$CONTAINER_NAME'..."
+docker restart "$CONTAINER_NAME" >/dev/null 2>&1
+
+if [[ $? -eq 0 ]]; then
+  echo "Container '$CONTAINER_NAME' has been restarted successfully."
+else
+  echo "Failed to restart container '$CONTAINER_NAME'. Please check Docker logs."
+  exit 1
+fi
